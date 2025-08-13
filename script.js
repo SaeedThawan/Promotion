@@ -9,11 +9,13 @@ document.addEventListener("DOMContentLoaded", function() {
     const starRatingInput = document.getElementById('storeRating');
     const customerNameInput = document.getElementById('customerNameInput');
     const customersDatalist = document.getElementById('customersList');
-    
+    const submitBtn = document.getElementById('submitBtn');
+
     let customersData = []; // لتخزين بيانات العملاء
     let allProductsData = []; // لتخزين بيانات المنتجات
+    let isSubmitting = false; // متغير لتتبع حالة الإرسال
 
-    // جلب البيانات من ملفات JSON
+    // جلب البيانات من ملفات JSON (تحسين الأداء بجلبها مرة واحدة)
     Promise.all([
         fetch('sales_representatives.json').then(res => res.json()),
         fetch('customers_main.json').then(res => res.json()),
@@ -35,17 +37,24 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // في البداية، يتم تعبئة قائمة العملاء بالكامل
         populateCustomersDatalist(customersDatalist, customersData);
+    }).catch(error => {
+        console.error('Error loading data:', error);
+        statusMessage.textContent = 'حدث خطأ في تحميل البيانات الأساسية.';
+        statusMessage.className = 'status error';
     });
 
     // دالة لملء القوائم المنسدلة البسيطة
     function populateDropdown(selectId, data) {
         const select = document.getElementById(selectId);
-        data.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item;
-            option.textContent = item;
-            select.appendChild(option);
-        });
+        if (select) {
+            select.innerHTML = '<option value="" disabled selected>اختر...</option>';
+            data.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item;
+                option.textContent = item;
+                select.appendChild(option);
+            });
+        }
     }
     
     // دالة لملء قائمة المنتجات
@@ -76,18 +85,15 @@ document.addEventListener("DOMContentLoaded", function() {
     customerNameInput.addEventListener('keyup', function() {
         const searchTerm = this.value.trim().toLowerCase();
         
-        // إذا كان هناك مدخل، قم بفلترة العملاء
         if (searchTerm.length > 0) {
             const filteredCustomers = customersData.filter(customer => 
                 customer.Customer_Name_AR.toLowerCase().includes(searchTerm)
             );
             populateCustomersDatalist(customersDatalist, filteredCustomers);
         } else {
-            // إذا كان الحقل فارغًا، أظهر كل العملاء
             populateCustomersDatalist(customersDatalist, customersData);
         }
         
-        // تحديث عرض تفاصيل العميل عند الاختيار
         const selectedOption = Array.from(customersDatalist.options).find(option => option.value === this.value);
         if (selectedOption) {
             const customerCode = selectedOption.getAttribute('data-code');
@@ -171,9 +177,17 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // دالة إرسال النموذج
+    // دالة إرسال النموذج مع التحسينات
     form.addEventListener('submit', function(e) {
         e.preventDefault();
+        
+        // منع الإرسال المتعدد في نفس الوقت
+        if (isSubmitting) {
+            return;
+        }
+
+        isSubmitting = true;
+        submitBtn.disabled = true; // تعطيل زر الإرسال
         
         statusMessage.textContent = 'جاري الإرسال...';
         statusMessage.className = 'status loading';
@@ -224,6 +238,10 @@ document.addEventListener("DOMContentLoaded", function() {
             statusMessage.textContent = 'حدث خطأ: ' + error.message;
             statusMessage.className = 'status error';
             console.error('Error:', error);
+        })
+        .finally(() => {
+            isSubmitting = false; // إعادة تعيين حالة الإرسال
+            submitBtn.disabled = false; // إعادة تفعيل زر الإرسال
         });
     });
 });
