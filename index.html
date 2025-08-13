@@ -38,8 +38,11 @@
                 <h2>معلومات الزيارة</h2>
                 <div class="form-group">
                     <label for="customerNameInput">اسم العميل:</label>
-                    <input list="customersList" id="customerNameInput" name="customerName" placeholder="ابحث عن العميل..." required>
-                    <datalist id="customersList"></datalist>
+                    <div class="customer-search-container">
+                        <input list="customersList" id="customerNameInput" name="customerName" placeholder="ابدأ بكتابة اسم العميل..." required>
+                        <datalist id="customersList"></datalist>
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
                     <input type="hidden" id="customerCodeHidden" name="customerCode">
                     <div id="customerDetails" class="customer-details"></div>
                 </div>

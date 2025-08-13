@@ -7,8 +7,11 @@ document.addEventListener("DOMContentLoaded", function() {
     const customerDetailsDiv = document.getElementById('customerDetails');
     const starRatingContainer = document.querySelector('.star-rating');
     const starRatingInput = document.getElementById('storeRating');
+    const customerNameInput = document.getElementById('customerNameInput');
+    const customersDatalist = document.getElementById('customersList');
     
     let customersData = []; // لتخزين بيانات العملاء
+    let allProductsData = []; // لتخزين بيانات المنتجات
 
     // جلب البيانات من ملفات JSON
     Promise.all([
@@ -19,21 +22,19 @@ document.addEventListener("DOMContentLoaded", function() {
         fetch('products.json').then(res => res.json()),
         fetch('governorates.json').then(res => res.json())
     ]).then(([reps, customers, actions, workspaces, products, governorates]) => {
-        // تخزين بيانات العملاء
         customersData = customers;
+        allProductsData = products;
         
-        // تعبئة القوائم المنسدلة
         populateDropdown('salesRepName', reps);
         populateDropdown('actionsTaken', actions);
         populateDropdown('workspaceStatus', workspaces);
         populateDropdown('governorate', governorates);
         
-        // تعبئة قائمة المنتجات (سيتم استخدامها لتكرار الحقول)
         const productSelects = document.querySelectorAll('.missingProduct');
-        productSelects.forEach(select => populateProductsDropdown(select, products));
+        productSelects.forEach(select => populateProductsDropdown(select, allProductsData));
 
-        // تعبئة قائمة العملاء الذكية
-        populateCustomersDatalist('customersList', customers);
+        // في البداية، يتم تعبئة قائمة العملاء بالكامل
+        populateCustomersDatalist(customersDatalist, customersData);
     });
 
     // دالة لملء القوائم المنسدلة البسيطة
@@ -61,33 +62,54 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // دالة لملء قائمة العملاء الذكية
-    function populateCustomersDatalist(listId, customersData) {
-        const datalist = document.getElementById(listId);
-        customersData.forEach(customer => {
+    function populateCustomersDatalist(listElement, customersList) {
+        listElement.innerHTML = '';
+        customersList.forEach(customer => {
             const option = document.createElement('option');
             option.value = customer.Customer_Name_AR;
             option.setAttribute('data-code', customer.Customer_Code);
-            datalist.appendChild(option);
+            listElement.appendChild(option);
         });
     }
 
-    // ربط كود العميل بحقل الإدخال المخفي وعرض التفاصيل
-    const customerNameInput = document.getElementById('customerNameInput');
-    const customerCodeHidden = document.getElementById('customerCodeHidden');
-    customerNameInput.addEventListener('input', function() {
-        const selectedOption = Array.from(document.getElementById('customersList').options).find(option => option.value === this.value);
-        customerCodeHidden.value = selectedOption ? selectedOption.getAttribute('data-code') : '';
+    // منطق البحث الديناميكي عن العملاء
+    customerNameInput.addEventListener('keyup', function() {
+        const searchTerm = this.value.trim().toLowerCase();
         
+        // إذا كان هناك مدخل، قم بفلترة العملاء
+        if (searchTerm.length > 0) {
+            const filteredCustomers = customersData.filter(customer => 
+                customer.Customer_Name_AR.toLowerCase().includes(searchTerm)
+            );
+            populateCustomersDatalist(customersDatalist, filteredCustomers);
+        } else {
+            // إذا كان الحقل فارغًا، أظهر كل العملاء
+            populateCustomersDatalist(customersDatalist, customersData);
+        }
+        
+        // تحديث عرض تفاصيل العميل عند الاختيار
+        const selectedOption = Array.from(customersDatalist.options).find(option => option.value === this.value);
         if (selectedOption) {
             const customerCode = selectedOption.getAttribute('data-code');
             const customerName = selectedOption.value;
+            document.getElementById('customerCodeHidden').value = customerCode;
             customerDetailsDiv.innerHTML = `<strong>العميل:</strong> ${customerName} <br> <strong>الكود:</strong> ${customerCode}`;
             customerDetailsDiv.style.display = 'block';
         } else {
+            document.getElementById('customerCodeHidden').value = '';
             customerDetailsDiv.style.display = 'none';
         }
     });
 
+    // تحسين تجربة البحث للعميل
+    customerNameInput.addEventListener('focus', function() {
+        this.placeholder = "اكتب اسم العميل أو جزء منه...";
+    });
+
+    customerNameInput.addEventListener('blur', function() {
+        this.placeholder = "ابدأ بكتابة اسم العميل...";
+    });
+    
     // منطق تقييم النجوم
     starRatingContainer.addEventListener('click', function(e) {
         if (e.target.classList.contains('fa-star')) {
@@ -111,19 +133,17 @@ document.addEventListener("DOMContentLoaded", function() {
     const addProductBtn = document.getElementById('addProductBtn');
     const productsContainer = document.getElementById('missingProductsContainer');
     addProductBtn.addEventListener('click', function() {
-        fetch('products.json').then(res => res.json()).then(products => {
-            const newProductItem = document.createElement('div');
-            newProductItem.classList.add('missing-product-item');
-            newProductItem.innerHTML = `
-                <select class="missingProduct" name="missingProduct" required></select>
-                <input type="hidden" class="missingProductCode" name="missingProductCode">
-                <input type="hidden" class="missingProductCategory" name="missingProductCategory">
-                <button type="button" class="remove-product-btn">X</button>
-            `;
-            productsContainer.appendChild(newProductItem);
-            const newSelect = newProductItem.querySelector('.missingProduct');
-            populateProductsDropdown(newSelect, products);
-        });
+        const newProductItem = document.createElement('div');
+        newProductItem.classList.add('missing-product-item');
+        newProductItem.innerHTML = `
+            <select class="missingProduct" name="missingProduct" required></select>
+            <input type="hidden" class="missingProductCode" name="missingProductCode">
+            <input type="hidden" class="missingProductCategory" name="missingProductCategory">
+            <button type="button" class="remove-product-btn">X</button>
+        `;
+        productsContainer.appendChild(newProductItem);
+        const newSelect = newProductItem.querySelector('.missingProduct');
+        populateProductsDropdown(newSelect, allProductsData);
     });
 
     // إزالة حقل منتج ناقص
@@ -163,7 +183,6 @@ document.addEventListener("DOMContentLoaded", function() {
         const missingProductCodes = [];
         const missingProductCategories = [];
 
-        // جمع بيانات المنتجات الناقصة
         const productNames = form.querySelectorAll('select.missingProduct');
         const productCodes = form.querySelectorAll('input.missingProductCode');
         const productCategories = form.querySelectorAll('input.missingProductCategory');
@@ -179,12 +198,10 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
         
-        // تعديل البيانات قبل الإرسال
         formData.append('missingProducts', missingProducts.join(','));
         formData.append('missingProductCodes', missingProductCodes.join(','));
         formData.append('missingProductCategories', missingProductCategories.join(','));
         
-        // إزالة الحقول القديمة التي تكررت
         formData.delete('missingProduct');
         formData.delete('missingProductCode');
         formData.delete('missingProductCategory');
