@@ -82,6 +82,7 @@ document.addEventListener("DOMContentLoaded", function() {
             newProductItem.innerHTML = `
                 <select class="missingProduct" name="missingProduct" required></select>
                 <input type="hidden" class="missingProductCode" name="missingProductCode">
+                <input type="hidden" class="missingProductCategory" name="missingProductCategory">
                 <button type="button" class="remove-product-btn">X</button>
             `;
             productsContainer.appendChild(newProductItem);
@@ -129,8 +130,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
         productNames.forEach((select, index) => {
             const name = select.value;
-            const code = productCodes[index].value;
-            const category = productCategories[index].value;
+            const code = productCodes[index] ? productCodes[index].value : '';
+            const category = productCategories[index] ? productCategories[index].value : '';
             if (name && code) {
                 missingProducts.push(name);
                 missingProductCodes.push(code);
