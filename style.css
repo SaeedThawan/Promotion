@@ -82,15 +82,15 @@ textarea {
     min-height: 120px;
 }
 
-/* تنسيق خاص لقسم البحث عن العميل */
+/* تنسيق خاص لقسم البحث عن العميل لجعله متوازناً */
 .customer-search-container {
     position: relative;
     width: 100%;
 }
 #customerNameInput {
-    padding: 12px 40px 12px 12px; /* مساحة أكبر للزر */
-    font-size: 1.1em;
-    height: 50px; /* ارتفاع أكبر للحقل */
+    padding: 15px 40px 15px 15px; /* زيادة المساحة الداخلية */
+    font-size: 1.2em;
+    height: 55px; /* ارتفاع مناسب للحقل */
 }
 .search-icon {
     position: absolute;
@@ -98,8 +98,9 @@ textarea {
     top: 50%;
     transform: translateY(-50%);
     color: var(--secondary-color);
-    pointer-events: none; /* لمنع التأثير على تفاعل الحقل */
+    pointer-events: none;
 }
+
 /* تحسين مظهر قائمة الاقتراحات */
 datalist {
     position: absolute;
@@ -118,7 +119,6 @@ datalist option {
 datalist option:hover {
     background-color: #f0f0f0;
 }
-
 
 .customer-details {
     padding: 10px 15px;
@@ -216,8 +216,9 @@ datalist option:hover {
         font-size: 1.2em;
     }
     #customerNameInput {
-        padding: 12px;
+        padding: 15px;
         font-size: 1em;
+        height: 50px;
     }
     .search-icon {
         left: 10px;
