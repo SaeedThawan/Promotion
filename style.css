@@ -1,38 +1,57 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #17a2b8;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+    --bg-color: #f8f9fa;
+    --card-bg-color: #ffffff;
+    --text-color: #343a40;
+    --border-color: #e9ecef;
+}
 
 body {
     font-family: 'Cairo', sans-serif;
-    background-color: #f4f7f9;
+    background-color: var(--bg-color);
     direction: rtl;
     text-align: right;
     margin: 0;
     padding: 20px;
-    color: #333;
+    color: var(--text-color);
 }
 .container {
     max-width: 900px;
     margin: 20px auto;
     padding: 30px;
-    background: #fff;
+    background: var(--card-bg-color);
     border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
-h1, h2 {
-    color: #004d99;
-    border-bottom: 2px solid #e0e0e0;
-    padding-bottom: 10px;
+.form-title {
+    color: var(--primary-color);
+    text-align: center;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 15px;
     margin-top: 0;
     font-weight: 700;
 }
-.section {
-    margin-bottom: 30px;
+h2 {
+    color: var(--secondary-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+    margin-top: 30px;
+    font-weight: 600;
+}
+.form-group {
+    margin-bottom: 20px;
 }
 label {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
     font-size: 1.1em;
-    color: #555;
+    color: var(--text-color);
 }
 input[type="text"],
 input[type="date"],
@@ -42,8 +61,7 @@ textarea,
 input[type="file"] {
     width: 100%;
     padding: 12px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     box-sizing: border-box;
     font-size: 1em;
@@ -55,48 +73,72 @@ input[type="time"]:focus,
 select:focus,
 textarea:focus,
 input[type="file"]:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
     outline: none;
 }
 textarea {
     resize: vertical;
-    min-height: 100px;
+    min-height: 120px;
 }
-button {
+.customer-details {
+    padding: 10px 15px;
+    background-color: #e9f5ff;
+    border: 1px solid #cce5ff;
+    border-radius: 8px;
+    margin-top: 10px;
+    color: #004085;
+    font-size: 0.9em;
+    display: none;
+}
+.star-rating {
+    display: flex;
+    justify-content: flex-end;
+    direction: ltr;
+    gap: 5px;
+    font-size: 1.5em;
+    color: #ccc;
+}
+.star-rating i {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.star-rating i.fas {
+    color: #ffc107;
+}
+.add-button, .submit-button {
+    width: 100%;
     padding: 12px 25px;
     color: #fff;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 1em;
+    font-size: 1.1em;
     font-weight: 600;
     transition: background-color 0.3s, transform 0.2s;
-}
-button:hover {
-    transform: translateY(-2px);
-}
-#submitBtn {
-    width: 100%;
-    background-color: #28a745;
-}
-#submitBtn:hover {
-    background-color: #218838;
-}
-#addProductBtn {
-    background-color: #17a2b8;
     margin-top: 10px;
 }
-#addProductBtn:hover {
+.add-button {
+    background-color: var(--secondary-color);
+}
+.add-button:hover {
     background-color: #138496;
+    transform: translateY(-2px);
+}
+.submit-button {
+    background-color: var(--success-color);
+}
+.submit-button:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
 }
 .remove-product-btn {
-    background-color: #dc3545;
+    background-color: var(--error-color);
     color: white;
     border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    line-height: 30px;
+    width: 35px;
+    height: 35px;
+    line-height: 35px;
     text-align: center;
     font-size: 1.2em;
     margin-right: 10px;
@@ -109,30 +151,29 @@ button:hover {
 .missing-product-item {
     display: flex;
     align-items: flex-end;
-    margin-bottom: 10px;
+    gap: 10px;
+    margin-bottom: 15px;
 }
 .missing-product-item select {
     flex-grow: 1;
 }
-.missing-product-item input {
-    margin-bottom: 0;
-}
-.status {
-    padding: 10px;
-    margin-top: 20px;
-    border-radius: 8px;
-    font-weight: 600;
-    text-align: center;
-}
-.loading {
-    background-color: #e6f7ff;
-    color: #0056b3;
-}
-.success {
-    background-color: #d4edda;
-    color: #155724;
-}
-.error {
-    background-color: #f8d7da;
-    color: #721c24;
+
+/* تصميم متجاوب للهواتف */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    .container {
+        padding: 20px;
+        margin: 10px auto;
+    }
+    .form-title {
+        font-size: 1.5em;
+    }
+    h2 {
+        font-size: 1.2em;
+    }
+    .star-rating {
+        font-size: 1.2em;
+    }
 }

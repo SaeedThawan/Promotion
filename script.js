@@ -4,6 +4,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const form = document.getElementById('visitForm');
     const statusMessage = document.getElementById('statusMessage');
+    const customerDetailsDiv = document.getElementById('customerDetails');
+    const starRatingContainer = document.querySelector('.star-rating');
+    const starRatingInput = document.getElementById('storeRating');
+    
+    let customersData = []; // لتخزين بيانات العملاء
 
     // جلب البيانات من ملفات JSON
     Promise.all([
@@ -14,6 +19,9 @@ document.addEventListener("DOMContentLoaded", function() {
         fetch('products.json').then(res => res.json()),
         fetch('governorates.json').then(res => res.json())
     ]).then(([reps, customers, actions, workspaces, products, governorates]) => {
+        // تخزين بيانات العملاء
+        customersData = customers;
+        
         // تعبئة القوائم المنسدلة
         populateDropdown('salesRepName', reps);
         populateDropdown('actionsTaken', actions);
@@ -63,13 +71,40 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // ربط كود العميل بحقل الإدخال المخفي
+    // ربط كود العميل بحقل الإدخال المخفي وعرض التفاصيل
     const customerNameInput = document.getElementById('customerNameInput');
-    const customersList = document.getElementById('customersList');
     const customerCodeHidden = document.getElementById('customerCodeHidden');
     customerNameInput.addEventListener('input', function() {
-        const selectedOption = Array.from(customersList.options).find(option => option.value === this.value);
+        const selectedOption = Array.from(document.getElementById('customersList').options).find(option => option.value === this.value);
         customerCodeHidden.value = selectedOption ? selectedOption.getAttribute('data-code') : '';
+        
+        if (selectedOption) {
+            const customerCode = selectedOption.getAttribute('data-code');
+            const customerName = selectedOption.value;
+            customerDetailsDiv.innerHTML = `<strong>العميل:</strong> ${customerName} <br> <strong>الكود:</strong> ${customerCode}`;
+            customerDetailsDiv.style.display = 'block';
+        } else {
+            customerDetailsDiv.style.display = 'none';
+        }
+    });
+
+    // منطق تقييم النجوم
+    starRatingContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('fa-star')) {
+            const rating = e.target.dataset.rating;
+            starRatingInput.value = rating;
+            
+            const stars = starRatingContainer.querySelectorAll('.fa-star');
+            stars.forEach(star => {
+                if (star.dataset.rating <= rating) {
+                    star.classList.remove('far');
+                    star.classList.add('fas');
+                } else {
+                    star.classList.remove('fas');
+                    star.classList.add('far');
+                }
+            });
+        }
     });
     
     // إضافة حقل منتج ناقص جديد
@@ -106,8 +141,13 @@ document.addEventListener("DOMContentLoaded", function() {
             const selectedOption = e.target.options[e.target.selectedIndex];
             const codeInput = e.target.closest('.missing-product-item').querySelector('.missingProductCode');
             const categoryInput = e.target.closest('.missing-product-item').querySelector('.missingProductCategory');
-            codeInput.value = selectedOption.getAttribute('data-code');
-            categoryInput.value = selectedOption.getAttribute('data-category');
+            
+            if (codeInput && selectedOption) {
+                codeInput.value = selectedOption.getAttribute('data-code');
+            }
+            if (categoryInput && selectedOption) {
+                categoryInput.value = selectedOption.getAttribute('data-category');
+            }
         }
     });
 
